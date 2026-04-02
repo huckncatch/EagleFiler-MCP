@@ -20,13 +20,11 @@ on errResp(msg)
     return my toJSON(r)
 end errResp
 
-on pad2(n)
-    if n < 10 then return "0" & (n as text)
-    return n as text
-end pad2
-
 on dateToISO(d)
-    return (year of d as text) & "-" & my pad2(month of d as integer) & "-" & my pad2(day of d) & "T" & my pad2(hours of d) & ":" & my pad2(minutes of d) & ":" & my pad2(seconds of d)
+    set fmt to current application's NSDateFormatter's new()
+    fmt's setDateFormat:"yyyy-MM-dd'T'HH:mm:ssXXXXX"
+    fmt's setLocale:(current application's NSLocale's localeWithLocaleIdentifier:"en_US_POSIX")
+    return (fmt's stringFromDate:d) as text
 end dateToISO
 
 on recordToSummary(rec)

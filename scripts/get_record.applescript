@@ -20,13 +20,11 @@ on errResp(msg)
     return my toJSON(r)
 end errResp
 
-on pad2(n)
-    if n < 10 then return "0" & (n as text)
-    return n as text
-end pad2
-
 on dateToISO(d)
-    return (year of d as text) & "-" & my pad2(month of d as integer) & "-" & my pad2(day of d) & "T" & my pad2(hours of d) & ":" & my pad2(minutes of d) & ":" & my pad2(seconds of d)
+    set fmt to current application's NSDateFormatter's new()
+    fmt's setDateFormat:"yyyy-MM-dd'T'HH:mm:ssXXXXX"
+    fmt's setLocale:(current application's NSLocale's localeWithLocaleIdentifier:"en_US_POSIX")
+    return (fmt's stringFromDate:d) as text
 end dateToISO
 
 on run argv
@@ -47,43 +45,49 @@ on run argv
 
     set theRec to missing value
     tell application "EagleFiler"
-        set matchRecs to (every library record of theLib whose guid is recGUID)
-        if (count of matchRecs) is 0 then
+        try
+            set theRec to first library record of theLib whose guid is recGUID
+        on error
             return my errResp("record not found: " & recGUID)
-        end if
-        set theRec to item 1 of matchRecs
+        end try
+    end tell
 
+    tell application "EagleFiler"
         set d to current application's NSMutableDictionary's new()
-        d's setValue:(guid of theRec) forKey:"guid"
-        d's setValue:(id of theRec) forKey:"id"
-        d's setValue:(title of theRec) forKey:"title"
-        d's setValue:(filename of theRec) forKey:"filename"
-        d's setValue:(kind of theRec) forKey:"kind"
-        d's setValue:(is folder of theRec) forKey:"is_folder"
-        d's setValue:(flagged of theRec) forKey:"flagged"
-        d's setValue:(unread of theRec) forKey:"unread"
-        d's setValue:(label index of theRec) forKey:"label"
-        d's setValue:(size of theRec) forKey:"size"
-        d's setValue:(URL of theRec) forKey:"url"
-        d's setValue:(source URL of theRec) forKey:"source_url"
-        d's setValue:(POSIX path of (get file of theRec)) forKey:"file_path"
-        d's setValue:(my dateToISO(modification date of theRec)) forKey:"modification_date"
-        d's setValue:(my dateToISO(added date of theRec)) forKey:"added_date"
-        d's setValue:(my dateToISO(creation date of theRec)) forKey:"creation_date"
+        try
+            d's setValue:(guid of theRec) forKey:"guid"
+            d's setValue:(id of theRec) forKey:"id"
+            d's setValue:(title of theRec) forKey:"title"
+            d's setValue:(filename of theRec) forKey:"filename"
+            d's setValue:(kind of theRec) forKey:"kind"
+            d's setValue:(is folder of theRec) forKey:"is_folder"
+            d's setValue:(flagged of theRec) forKey:"flagged"
+            d's setValue:(unread of theRec) forKey:"unread"
+            d's setValue:(label index of theRec) forKey:"label"
+            d's setValue:(size of theRec) forKey:"size"
+            d's setValue:((URL of theRec) as text) forKey:"url"
+            d's setValue:((source URL of theRec) as text) forKey:"source_url"
+            d's setValue:(POSIX path of (get file of theRec)) forKey:"file_path"
+            d's setValue:(my dateToISO(modification date of theRec)) forKey:"modification_date"
+            d's setValue:(my dateToISO(added date of theRec)) forKey:"added_date"
+            d's setValue:(my dateToISO(creation date of theRec)) forKey:"creation_date"
 
-        -- Note text (empty string if none)
-        if has note of theRec then
-            d's setValue:(note text of theRec) forKey:"note_text"
-        else
-            d's setValue:"" forKey:"note_text"
-        end if
+            -- Note text (empty string if none)
+            if has note of theRec then
+                d's setValue:(note text of theRec) forKey:"note_text"
+            else
+                d's setValue:"" forKey:"note_text"
+            end if
 
-        set tagNames to assigned tag names of theRec
-        set tagsArray to current application's NSMutableArray's new()
-        repeat with t in tagNames
-            tagsArray's addObject:(t as text)
-        end repeat
-        d's setValue:tagsArray forKey:"tags"
+            set tagNames to assigned tag names of theRec
+            set tagsArray to current application's NSMutableArray's new()
+            repeat with t in tagNames
+                tagsArray's addObject:(t as text)
+            end repeat
+            d's setValue:tagsArray forKey:"tags"
+        on error errMsg
+            return my errResp("failed to read record properties: " & errMsg)
+        end try
     end tell
 
     return my okResp(d)
