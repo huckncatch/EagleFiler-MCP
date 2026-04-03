@@ -20,7 +20,7 @@ end errResp
 on findLib(libPath)
     tell application "EagleFiler"
         repeat with lib in library documents
-            if POSIX path of (get file of lib) is libPath then return lib
+            if ((current application's NSString's stringWithString:(POSIX path of (get file of lib)))'s stringByStandardizingPath() as text) is libPath then return lib
         end repeat
     end tell
     return missing value

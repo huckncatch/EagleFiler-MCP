@@ -26,7 +26,9 @@ on run argv
         repeat with lib in libs
             try
                 set libFile to file of lib
-                set libPath to POSIX path of libFile
+                -- EagleFiler returns paths with trailing slash; strip it for consistent comparison
+                set libPathRaw to POSIX path of libFile
+                set libPath to ((current application's NSString's stringWithString:libPathRaw)'s stringByStandardizingPath()) as text
                 set dictItem to current application's NSMutableDictionary's new()
                 dictItem's setValue:(description of lib) forKey:"name"
                 dictItem's setValue:libPath forKey:"path"

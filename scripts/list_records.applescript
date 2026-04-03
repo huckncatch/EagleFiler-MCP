@@ -60,7 +60,7 @@ on run argv
     set theLib to missing value
     tell application "EagleFiler"
         repeat with lib in library documents
-            if POSIX path of (get file of lib) is libPath then
+            if ((current application's NSString's stringWithString:(POSIX path of (get file of lib)))'s stringByStandardizingPath() as text) is libPath then
                 set theLib to lib
                 exit repeat
             end if
