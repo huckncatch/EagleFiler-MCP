@@ -51,6 +51,7 @@ on run argv
         set webFmt to plain text format
     else if formatStr is "webarchive" then
         set webFmt to Web archive format
+    -- Note: rich_text and rich_text_with_images formats are intentionally excluded (not in MCP tool spec)
     else
         return my errResp("Unknown format: " & formatStr)
     end if

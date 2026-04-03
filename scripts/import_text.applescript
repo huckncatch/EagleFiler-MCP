@@ -51,9 +51,9 @@ on run argv
     try
         tell application "EagleFiler"
             if theContainer is missing value then
-                set newRecs to import theLib text textContent title titleStr asking for options false
+                set newRecs to import theLib plain text textContent title titleStr asking for options false
             else
-                set newRecs to import theLib text textContent title titleStr container theContainer asking for options false
+                set newRecs to import theLib plain text textContent title titleStr container theContainer asking for options false
             end if
         end tell
     on error msg
