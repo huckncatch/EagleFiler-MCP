@@ -99,21 +99,36 @@ on run argv
     end tell
     delay 0.5 -- allow search index to update display
 
-    set allMatches to missing value
-    tell application "EagleFiler"
-        tell theWindow
-            set allMatches to displayed records
+    set allMatches to {}
+    try
+        tell application "EagleFiler"
+            tell theWindow
+                set allMatches to displayed records
+            end tell
         end tell
-    end tell
+    on error errMsg
+        -- Clear search field even on error
+        tell application "EagleFiler"
+            tell theWindow
+                set search query to ""
+            end tell
+        end tell
+        return my errResp("Failed to read search results: " & errMsg)
+    end try
 
     set totalCount to count of allMatches
     set resultList to current application's NSMutableArray's new()
     set endIdx to offsetNum + limitNum
     if endIdx > totalCount then set endIdx to totalCount
 
-    repeat with i from (offsetNum + 1) to endIdx
-        resultList's addObject:(my recordToSummary(item i of allMatches))
-    end repeat
+    set buildErr to ""
+    try
+        repeat with i from (offsetNum + 1) to endIdx
+            resultList's addObject:(my recordToSummary(item i of allMatches))
+        end repeat
+    on error errMsg
+        set buildErr to errMsg
+    end try
 
     -- Clear search field
     tell application "EagleFiler"
@@ -121,6 +136,8 @@ on run argv
             set search query to ""
         end tell
     end tell
+
+    if buildErr is not "" then return my errResp("Failed to build results: " & buildErr)
 
     set resultData to current application's NSMutableDictionary's new()
     resultData's setValue:resultList forKey:"records"

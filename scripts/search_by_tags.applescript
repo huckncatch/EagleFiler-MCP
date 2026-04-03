@@ -93,27 +93,31 @@ on run argv
     -- Filter candidates to those that also have all remaining tags
     set matchingRecs to current application's NSMutableArray's new()
     tell application "EagleFiler"
-        repeat with rec in candidates
-            set recTags to assigned tag names of rec
-            set hasAll to true
-            repeat with i from 1 to tagsCount
-                set requiredTag to (tagsList's objectAtIndex:(i - 1)) as text
-                set found to false
-                repeat with rt in recTags
-                    if rt as text is requiredTag then
-                        set found to true
+        try
+            repeat with rec in candidates
+                set recTags to assigned tag names of rec
+                set hasAll to true
+                repeat with i from 1 to tagsCount
+                    set requiredTag to (tagsList's objectAtIndex:(i - 1)) as text
+                    set found to false
+                    repeat with rt in recTags
+                        if rt as text is requiredTag then
+                            set found to true
+                            exit repeat
+                        end if
+                    end repeat
+                    if not found then
+                        set hasAll to false
                         exit repeat
                     end if
                 end repeat
-                if not found then
-                    set hasAll to false
-                    exit repeat
+                if hasAll then
+                    matchingRecs's addObject:rec
                 end if
             end repeat
-            if hasAll then
-                matchingRecs's addObject:rec
-            end if
-        end repeat
+        on error errMsg
+            return my errResp("Failed to filter records: " & errMsg)
+        end try
     end tell
 
     set totalCount to (matchingRecs's count()) as integer
@@ -121,9 +125,13 @@ on run argv
     set endIdx to offsetNum + limitNum
     if endIdx > totalCount then set endIdx to totalCount
 
-    repeat with i from (offsetNum + 1) to endIdx
-        resultList's addObject:(my recordToSummary(matchingRecs's objectAtIndex:(i - 1)))
-    end repeat
+    try
+        repeat with i from (offsetNum + 1) to endIdx
+            resultList's addObject:(my recordToSummary(matchingRecs's objectAtIndex:(i - 1)))
+        end repeat
+    on error errMsg
+        return my errResp("Failed to build results: " & errMsg)
+    end try
 
     set resultData to current application's NSMutableDictionary's new()
     resultData's setValue:resultList forKey:"records"
