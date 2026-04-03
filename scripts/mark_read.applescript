@@ -41,8 +41,12 @@ on run argv
         on error
             return my errResp("record not found: " & recGUID)
         end try
-        -- EagleFiler uses `unread` property; read=true means unread=false
-        set unread of theRec to (not readVal)
+        try
+            -- EagleFiler uses `unread` property; read=true means unread=false
+            set unread of theRec to (not readVal)
+        on error errMsg
+            return my errResp("Failed to set read state: " & errMsg)
+        end try
     end tell
 
     set d to current application's NSMutableDictionary's new()

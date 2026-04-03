@@ -41,7 +41,11 @@ on run argv
         on error
             return my errResp("record not found: " & recGUID)
         end try
-        set flagged of theRec to flagVal
+        try
+            set flagged of theRec to flagVal
+        on error errMsg
+            return my errResp("Failed to set flagged: " & errMsg)
+        end try
     end tell
 
     set d to current application's NSMutableDictionary's new()

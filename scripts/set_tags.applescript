@@ -37,6 +37,8 @@ on run argv
 
     set tagsData to (current application's NSString's stringWithString:tagsJSON)'s dataUsingEncoding:(current application's NSUTF8StringEncoding)
     set tagsList to current application's NSJSONSerialization's JSONObjectWithData:tagsData options:0 |error|:(missing value)
+    if tagsList is missing value then return my errResp("Invalid tags JSON")
+    if (tagsList's isKindOfClass:(current application's NSArray's class)) as boolean is false then return my errResp("Tags must be a JSON array")
 
     -- Convert NSArray to AppleScript list
     set asTagList to {}
@@ -50,8 +52,12 @@ on run argv
         on error
             return my errResp("record not found: " & recGUID)
         end try
-        set assigned tag names of theRec to asTagList
-        set finalTags to assigned tag names of theRec
+        try
+            set assigned tag names of theRec to asTagList
+            set finalTags to assigned tag names of theRec
+        on error errMsg
+            return my errResp("Failed to set tags: " & errMsg)
+        end try
     end tell
 
     set resultTags to current application's NSMutableArray's new()

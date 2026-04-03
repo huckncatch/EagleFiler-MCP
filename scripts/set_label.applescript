@@ -30,7 +30,13 @@ on run argv
     -- argv[1]: library path, argv[2]: GUID, argv[3]: label integer 0-7
     set libPath to item 1 of argv
     set recGUID to item 2 of argv
-    set labelVal to (item 3 of argv) as integer
+    set labelVal to 0
+    try
+        set labelVal to (item 3 of argv) as integer
+    on error
+        return my errResp("Label must be an integer")
+    end try
+    if labelVal < 0 or labelVal > 7 then return my errResp("Label must be 0–7")
 
     set theLib to my findLib(libPath)
     if theLib is missing value then return my errResp("library not open: " & libPath)
@@ -41,7 +47,11 @@ on run argv
         on error
             return my errResp("record not found: " & recGUID)
         end try
-        set label index of theRec to labelVal
+        try
+            set label index of theRec to labelVal
+        on error errMsg
+            return my errResp("Failed to set label: " & errMsg)
+        end try
     end tell
 
     set d to current application's NSMutableDictionary's new()

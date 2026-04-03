@@ -41,7 +41,11 @@ on run argv
         on error
             return my errResp("record not found: " & recGUID)
         end try
-        set note text of theRec to noteText
+        try
+            set note text of theRec to noteText
+        on error errMsg
+            return my errResp("Failed to set note: " & errMsg)
+        end try
     end tell
 
     set d to current application's NSMutableDictionary's new()
