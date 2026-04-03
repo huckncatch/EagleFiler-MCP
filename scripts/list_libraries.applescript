@@ -19,6 +19,7 @@ on run argv
 
     -- Get open libraries from EagleFiler
     set openLibs to current application's NSMutableArray's new()
+    set openPathSet to current application's NSMutableSet's new()
 
     tell application "EagleFiler"
         set libs to every library document
@@ -31,12 +32,28 @@ on run argv
                 dictItem's setValue:libPath forKey:"path"
                 dictItem's setValue:true forKey:"is_open"
                 openLibs's addObject:dictItem
+                openPathSet's addObject:libPath
             end try
         end repeat
     end tell
 
-    -- Build known list (empty for now)
+    -- Parse known libraries map from JSON arg
     set knownList to current application's NSMutableArray's new()
+    set jsonData to (current application's NSString's stringWithString:knownJSON)'s dataUsingEncoding:(current application's NSUTF8StringEncoding)
+    set knownMap to current application's NSJSONSerialization's JSONObjectWithData:jsonData options:0 |error|:(missing value)
+    if knownMap is not missing value then
+        set allKeys to (knownMap's allKeys()) as list
+        repeat with k in allKeys
+            set libName to k as text
+            set libPath to (knownMap's valueForKey:libName) as text
+            set isOpen to (openPathSet's containsObject:libPath) as boolean
+            set dictItem to current application's NSMutableDictionary's new()
+            dictItem's setValue:libName forKey:"name"
+            dictItem's setValue:libPath forKey:"path"
+            dictItem's setValue:isOpen forKey:"is_open"
+            knownList's addObject:dictItem
+        end repeat
+    end if
 
     set resultData to current application's NSMutableDictionary's new()
     resultData's setValue:openLibs forKey:"open"
