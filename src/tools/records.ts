@@ -58,8 +58,8 @@ export const recordTools = [
       properties: {
         library: { type: 'string', description: 'Short library name or full path' },
         folder_guid: { type: 'string', description: 'GUID of folder to list (omit for root)' },
-        limit: { type: 'integer', default: 100, description: 'Max records to return (1–1000)' },
-        offset: { type: 'integer', default: 0, description: 'Number of records to skip' },
+        limit: { type: 'integer', default: 100, minimum: 1, maximum: 1000, description: 'Max records to return (1–1000)' },
+        offset: { type: 'integer', default: 0, minimum: 0, description: 'Number of records to skip' },
       },
       required: ['library'],
     },
@@ -71,8 +71,8 @@ export const recordTools = [
     inputSchema: {
       type: 'object',
       properties: {
-        library: { type: 'string' },
-        guid: { type: 'string' },
+        library: { type: 'string', description: 'Short library name or full path' },
+        guid: { type: 'string', description: 'Record GUID' },
       },
       required: ['library', 'guid'],
     },
@@ -84,10 +84,10 @@ export const recordTools = [
     inputSchema: {
       type: 'object',
       properties: {
-        library: { type: 'string' },
+        library: { type: 'string', description: 'Short library name or full path' },
         query: { type: 'string', description: 'Search query. Supports tag:tagname syntax.' },
-        limit: { type: 'integer', default: 100 },
-        offset: { type: 'integer', default: 0 },
+        limit: { type: 'integer', default: 100, minimum: 1, maximum: 1000, description: 'Max records to return (1–1000)' },
+        offset: { type: 'integer', default: 0, minimum: 0, description: 'Number of records to skip' },
       },
       required: ['library', 'query'],
     },
@@ -99,10 +99,10 @@ export const recordTools = [
     inputSchema: {
       type: 'object',
       properties: {
-        library: { type: 'string' },
-        tags: { type: 'array', items: { type: 'string' }, minItems: 1 },
-        limit: { type: 'integer', default: 100 },
-        offset: { type: 'integer', default: 0 },
+        library: { type: 'string', description: 'Short library name or full path' },
+        tags: { type: 'array', items: { type: 'string' }, minItems: 1, description: 'Tags to match (all required — AND semantics)' },
+        limit: { type: 'integer', default: 100, minimum: 1, maximum: 1000, description: 'Max records to return (1–1000)' },
+        offset: { type: 'integer', default: 0, minimum: 0, description: 'Number of records to skip' },
       },
       required: ['library', 'tags'],
     },

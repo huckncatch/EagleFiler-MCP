@@ -53,6 +53,10 @@ describe('handleGetRecord', () => {
       'test-guid',
     ]);
   });
+
+  it('rejects missing guid', async () => {
+    await expect(handleGetRecord({ library: 'main' })).rejects.toThrow();
+  });
 });
 
 describe('handleSearch', () => {
