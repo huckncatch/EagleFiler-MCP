@@ -32,15 +32,26 @@ on run argv
     set libPath to item 1 of argv
     set recGUID to item 2 of argv
 
-    set theLib to missing value
+    -- Collect file aliases inside tell (POSIX path coercion fails inside tell application block)
+    set libFiles to {}
     tell application "EagleFiler"
-        repeat with lib in library documents
-            if ((current application's NSString's stringWithString:(POSIX path of (get file of lib)))'s stringByStandardizingPath() as text) is libPath then
-                set theLib to lib
-                exit repeat
-            end if
+        set libCount to count of library documents
+        repeat with i from 1 to libCount
+            set end of libFiles to (file of library document i)
         end repeat
     end tell
+    -- Find matching library by comparing POSIX paths outside tell block
+    set theLib to missing value
+    repeat with i from 1 to count of libFiles
+        set libPathRaw to POSIX path of (item i of libFiles)
+        set normalPath to ((current application's NSString's stringWithString:libPathRaw)'s stringByStandardizingPath()) as text
+        if normalPath is libPath then
+            tell application "EagleFiler"
+                set theLib to library document i
+            end tell
+            exit repeat
+        end if
+    end repeat
     if theLib is missing value then return my errResp("library not open: " & libPath)
 
     set theRec to missing value

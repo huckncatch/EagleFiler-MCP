@@ -18,11 +18,24 @@ on errResp(msg)
     return my toJSON(r)
 end errResp
 on findLib(libPath)
+    -- Collect file aliases inside tell (POSIX path coercion fails inside tell application block)
+    set libFiles to {}
     tell application "EagleFiler"
-        repeat with lib in library documents
-            if ((current application's NSString's stringWithString:(POSIX path of (get file of lib)))'s stringByStandardizingPath() as text) is libPath then return lib
+        set libCount to count of library documents
+        repeat with i from 1 to libCount
+            set end of libFiles to (file of library document i)
         end repeat
     end tell
+    -- Compare POSIX paths outside tell block
+    repeat with i from 1 to count of libFiles
+        set libPathRaw to POSIX path of (item i of libFiles)
+        set normalPath to ((current application's NSString's stringWithString:libPathRaw)'s stringByStandardizingPath()) as text
+        if normalPath is libPath then
+            tell application "EagleFiler"
+                return library document i
+            end tell
+        end if
+    end repeat
     return missing value
 end findLib
 
