@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { run } from '../dispatcher.js';
 import { resolveLibrary } from '../libraries.js';
 
-const VALID_FORMATS = ['bookmark', 'html', 'pdf', 'pdf_single_page', 'plain_text', 'webarchive'] as const;
+export const VALID_FORMATS = ['bookmark', 'html', 'pdf', 'pdf_single_page', 'plain_text', 'webarchive'] as const;
 
 const ImportUrlInput = z.object({
   library: z.string(),
