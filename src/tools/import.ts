@@ -1,3 +1,6 @@
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 import { z } from 'zod';
 import { run } from '../dispatcher.js';
 import { resolveLibrary } from '../libraries.js';
@@ -16,6 +19,15 @@ const ImportTextInput = z.object({
   text: z.string(),
   title: z.string(),
   folder_guid: z.string().optional().default(''),
+});
+
+const ImportFileInput = z.object({
+  library: z.string(),
+  paths: z.array(z.string().min(1)).min(1),
+  folder_guid: z.string().optional().default(''),
+  tags: z.array(z.string()).optional().default([]),
+  note: z.string().optional().default(''),
+  delete_source: z.boolean().optional().default(true),
 });
 
 const AddFolderInput = z.object({
@@ -43,6 +55,23 @@ export async function handleImportUrl(args: unknown) {
 export async function handleImportText(args: unknown) {
   const { library, text, title, folder_guid } = ImportTextInput.parse(args);
   return run('import_text', [resolveLibrary(library), text, title, folder_guid]);
+}
+
+export async function handleImportFile(args: unknown) {
+  const { library, paths, folder_guid, tags, note, delete_source } = ImportFileInput.parse(args);
+  const libPath = resolveLibrary(library);
+  const libRoot = path.dirname(libPath) + path.sep;
+  const resolved = paths.map((p) => {
+    const abs = p.startsWith('~/') ? path.join(os.homedir(), p.slice(2)) : p;
+    if (!path.isAbsolute(abs)) throw new Error(`Path must be absolute or start with ~/: "${p}"`);
+    const norm = path.resolve(abs);
+    if (!fs.existsSync(norm)) throw new Error(`File not found: "${p}"`);
+    if (norm.startsWith(libRoot)) throw new Error(`File is inside the library folder: "${p}"`);
+    return norm;
+  });
+  return run('import_file', [
+    libPath, JSON.stringify(resolved), folder_guid, JSON.stringify(tags), note, String(delete_source),
+  ]);
 }
 
 export async function handleAddFolder(args: unknown) {
@@ -92,6 +121,29 @@ export const importTools = [
         folder_guid: { type: 'string', description: 'Destination folder GUID (omit for root)' },
       },
       required: ['library', 'text', 'title'],
+    },
+  },
+  {
+    name: 'import_file',
+    description:
+      'Import local files into a library. Moves each file into the library by default (delete_source: true). ' +
+      'Returns one entry per path: {path, guid, title}, or {path, error} for a file that was not imported. ' +
+      'A refused duplicate keeps its source file.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        library: { type: 'string', description: 'Short library name or full path' },
+        paths: { type: 'array', items: { type: 'string' }, description: 'Absolute or ~/ paths of the files to import' },
+        folder_guid: { type: 'string', description: 'Destination folder GUID (omit for root)' },
+        tags: { type: 'array', items: { type: 'string' }, description: 'Tags to set on each new record' },
+        note: { type: 'string', description: 'Note to set on each new record' },
+        delete_source: {
+          type: 'boolean',
+          default: true,
+          description: 'Delete each source file after a successful import (move). false keeps it (copy).',
+        },
+      },
+      required: ['library', 'paths'],
     },
   },
   {

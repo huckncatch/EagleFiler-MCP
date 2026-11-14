@@ -10,7 +10,7 @@ import {
 import { libraryTools, handleListLibraries, handleOpenLibrary } from './tools/libraries.js';
 import { recordTools, handleListRecords, handleGetRecord, handleSearch, handleSearchByTags } from './tools/records.js';
 import { metadataTools, handleSetTags, handleSetNote, handleFlagRecord, handleSetLabel, handleMarkRead } from './tools/metadata.js';
-import { importTools, handleImportUrl, handleImportText, handleAddFolder, handleMoveRecord, handleTrashRecord } from './tools/import.js';
+import { importTools, handleImportUrl, handleImportText, handleImportFile, handleAddFolder, handleMoveRecord, handleTrashRecord } from './tools/import.js';
 
 const allTools = [...libraryTools, ...recordTools, ...metadataTools, ...importTools];
 
@@ -28,6 +28,7 @@ const handlers: Record<string, (args: unknown) => Promise<unknown>> = {
   mark_read:        handleMarkRead,
   import_url:       handleImportUrl,
   import_text:      handleImportText,
+  import_file:      handleImportFile,
   add_folder:       handleAddFolder,
   move_record:      handleMoveRecord,
   trash_record:     handleTrashRecord,

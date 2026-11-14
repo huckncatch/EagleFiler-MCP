@@ -84,6 +84,7 @@ All tools accept either a short name (`"main"`) or an absolute path to the `.efl
 |------|-------------|
 | `import_url` | Import a URL as bookmark, HTML, PDF, plain text, or web archive |
 | `import_text` | Create a new `.txt` record with provided content |
+| `import_file` | Import local files, with optional tags and note; moves the file by default (`delete_source: false` copies) |
 | `add_folder` | Create a new folder in a library |
 | `move_record` | Move a record to a different folder within the same library |
 | `trash_record` | Move a record to the library trash (recoverable from EagleFiler) |
@@ -103,7 +104,7 @@ src/
     libraries.ts    # list_libraries, open_library
     records.ts      # list_records, get_record, search, search_by_tags
     metadata.ts     # set_tags, set_note, flag_record, set_label, mark_read
-    import.ts       # import_url, import_text, add_folder, move_record, trash_record
+    import.ts       # import_url, import_text, import_file, add_folder, move_record, trash_record
 scripts/
   *.applescript     # one script per tool, called by dispatcher via osascript
 ```
