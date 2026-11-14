@@ -20,42 +20,51 @@ on makeErrorResponse(msg)
     return my toJSON(r)
 end makeErrorResponse
 
+on findLib(libPath)
+    -- Collect file aliases inside tell (POSIX path coercion fails inside tell application block)
+    set libFiles to {}
+    tell application "EagleFiler"
+        set libCount to count of library documents
+        repeat with i from 1 to libCount
+            set end of libFiles to (file of library document i)
+        end repeat
+    end tell
+    -- Compare POSIX paths outside tell block
+    repeat with i from 1 to count of libFiles
+        set libPathRaw to POSIX path of (item i of libFiles)
+        set normalPath to ((current application's NSString's stringWithString:libPathRaw)'s stringByStandardizingPath()) as text
+        if normalPath is libPath then
+            tell application "EagleFiler"
+                return library document i
+            end tell
+        end if
+    end repeat
+    return missing value
+end findLib
+
 on run argv
     -- argv[1]: full resolved path to .eflibrary file (already expanded by dispatcher)
     set libPath to item 1 of argv
 
-    -- Check if already open
-    tell application "EagleFiler"
-        set libs to every library document
-        repeat with lib in libs
-            try
-                set libFile to file of lib
-                set checkPath to POSIX path of libFile
-                if checkPath equals libPath then
-                    set dictResult to current application's NSMutableDictionary's new()
-                    dictResult's setValue:libPath forKey:"path"
-                    dictResult's setValue:true forKey:"already_open"
-                    return my okResp(dictResult)
-                end if
-            end try
-        end repeat
-    end tell
+    if my findLib(libPath) is not missing value then
+        set dictResult to current application's NSMutableDictionary's new()
+        dictResult's setValue:libPath forKey:"path"
+        dictResult's setValue:true forKey:"already_open"
+        return my okResp(dictResult)
+    end if
 
-    -- Open the library
-    set didError to false
-    set errMsg to ""
+    -- Make the alias outside the tell block (POSIX file fails inside it); this also fails on a missing file
     try
-        tell application "EagleFiler"
-            -- Try opening as string path first
-            open POSIX file libPath
-        end tell
-    on error errMsg
-        set didError to true
+        set libAlias to (POSIX file libPath) as alias
+    on error
+        return my makeErrorResponse("Library not found: " & libPath)
     end try
 
-    if didError then
+    try
+        tell application "EagleFiler" to open libAlias
+    on error errMsg
         return my makeErrorResponse("Failed to open library: " & errMsg)
-    end if
+    end try
 
     set dictResult to current application's NSMutableDictionary's new()
     dictResult's setValue:libPath forKey:"path"
