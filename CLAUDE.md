@@ -67,6 +67,17 @@ Foundation methods outside it.
    need EagleFiler.
 5. Run `npm test` and `npm run build`.
 
+## EagleFiler Reference
+
+EagleFiler ships its own docs in
+`/Applications/EagleFiler.app/Contents/Resources/`:
+
+- `EagleFiler.sdef`: the AppleScript dictionary, the authority on what the
+  scripts can do. Open it in Script Editor (File ▸ Open Dictionary) or grep it.
+- `EagleFiler Help/*.html`: the manual, one page per topic. Read a page with
+  `textutil -convert txt -stdout <page>.html`.
+- `EagleFiler Manual.pdf`: the same manual as one PDF.
+
 ## MCP Registration
 
 Both clients run the server through `~/config/brain/bin/mcp-exec.sh`, which
