@@ -64,9 +64,9 @@ on run argv
     try
         tell application "EagleFiler"
             if theContainer is missing value then
-                set newRecs to import theLib plain text textContent title titleStr asking for options false
+                set newRecs to import theLib plain text textContent asking for options false
             else
-                set newRecs to import theLib plain text textContent title titleStr container theContainer asking for options false
+                set newRecs to import theLib plain text textContent container theContainer asking for options false
             end if
         end tell
     on error msg
@@ -76,6 +76,12 @@ on run argv
     if (count of newRecs) = 0 then return my errResp("Import returned no records")
 
     set newRec to item 1 of newRecs
+    -- import has no title parameter: name the file, and the linked title follows
+    try
+        tell application "EagleFiler" to set basename of newRec to titleStr
+    on error errMsg
+        return my errResp("Imported, but failed to set the title: " & errMsg)
+    end try
     set d to current application's NSMutableDictionary's new()
     try
         tell application "EagleFiler"
