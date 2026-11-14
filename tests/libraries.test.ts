@@ -9,8 +9,8 @@ describe('KNOWN_LIBRARIES', () => {
   it('contains main', () => {
     expect(KNOWN_LIBRARIES['main']).toBe(`${BASE}/main/main.eflibrary`);
   });
-  it('contains all 9 libraries', () => {
-    expect(Object.keys(KNOWN_LIBRARIES)).toHaveLength(9);
+  it('contains all 8 libraries', () => {
+    expect(Object.keys(KNOWN_LIBRARIES)).toHaveLength(8);
   });
 });
 

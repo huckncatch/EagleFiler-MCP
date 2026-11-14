@@ -12,7 +12,6 @@ export const KNOWN_LIBRARIES: Record<string, string> = {
   rental:      path.join(BASE, 'rental', 'rental.eflibrary'),
   evernote:    path.join(BASE, 'Evernote', 'Evernote.eflibrary'),
   joplin:      path.join(BASE, 'Joplin', 'Joplin.eflibrary'),
-  scraps:      path.join(BASE, 'scraps', 'scraps.eflibrary'),
   erotica:     path.join(BASE, 'erotica', 'erotica.eflibrary'),
 };
 
