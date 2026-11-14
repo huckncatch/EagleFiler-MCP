@@ -55,14 +55,14 @@ All tools accept either a short name (`"main"`) or an absolute path to the `.efl
 ### Libraries
 
 | Tool | Description |
-|------|-------------|
+| ---- | ----------- |
 | `list_libraries` | List all known libraries and which are currently open |
 | `open_library` | Open a library by short name or path |
 
 ### Records
 
 | Tool | Description |
-|------|-------------|
+| ---- | ----------- |
 | `list_records` | List records in a library root or folder, with pagination |
 | `get_record` | Get full details of a record by GUID (metadata, tags, note, file path, URL) |
 | `search` | Full-text search; supports EagleFiler query syntax including `tag:tagname` |
@@ -71,7 +71,7 @@ All tools accept either a short name (`"main"`) or an absolute path to the `.efl
 ### Metadata
 
 | Tool | Description |
-|------|-------------|
+| ---- | ----------- |
 | `set_tags` | Replace a record's tag set (provide the complete desired list) |
 | `set_note` | Write a plain-text note on a record |
 | `flag_record` | Flag or unflag a record |
@@ -85,7 +85,7 @@ All tools accept either a short name (`"main"`) or an absolute path to the `.efl
 ### Import & Structure
 
 | Tool | Description |
-|------|-------------|
+| ---- | ----------- |
 | `import_url` | Import a URL as bookmark, HTML, PDF, plain text, or web archive |
 | `import_text` | Create a new `.txt` record with provided content |
 | `import_file` | Import local files, with optional tags and note; moves the file by default (`delete_source: false` copies) |
@@ -100,7 +100,7 @@ All tools accept either a short name (`"main"`) or an absolute path to the `.efl
 
 ## Architecture
 
-```
+```text
 src/
   index.ts          # MCP server entry point, tool dispatch
   libraries.ts      # KNOWN_LIBRARIES map, resolveLibrary()
