@@ -60,7 +60,7 @@ on run argv
     set tagsData to (current application's NSString's stringWithString:tagsJSON)'s dataUsingEncoding:(current application's NSUTF8StringEncoding)
     set tagsList to current application's NSJSONSerialization's JSONObjectWithData:tagsData options:0 |error|:(missing value)
     if tagsList is missing value then return my errResp("Invalid tags JSON")
-    set tagsCount to (tagsList's count()) as integer
+    set tagsCount to (tagsList's |count|()) as integer
     if tagsCount = 0 then return my errResp("At least one tag is required")
 
     -- Collect file aliases inside tell (POSIX path coercion fails inside tell application block)
@@ -102,14 +102,15 @@ on run argv
     end tell
 
     -- Filter candidates to those that also have all remaining tags
-    set matchingRecs to current application's NSMutableArray's new()
+    set reqTags to (tagsList as list)
+    set matchingRecs to {}
     tell application "EagleFiler"
         try
             repeat with rec in candidates
                 set recTags to assigned tag names of rec
                 set hasAll to true
                 repeat with i from 1 to tagsCount
-                    set requiredTag to (tagsList's objectAtIndex:(i - 1)) as text
+                    set requiredTag to (item i of reqTags) as text
                     set found to false
                     repeat with rt in recTags
                         if rt as text is requiredTag then
@@ -123,7 +124,7 @@ on run argv
                     end if
                 end repeat
                 if hasAll then
-                    matchingRecs's addObject:rec
+                    set end of matchingRecs to (contents of rec)
                 end if
             end repeat
         on error errMsg
@@ -131,14 +132,14 @@ on run argv
         end try
     end tell
 
-    set totalCount to (matchingRecs's count()) as integer
+    set totalCount to count of matchingRecs
     set resultList to current application's NSMutableArray's new()
     set endIdx to offsetNum + limitNum
     if endIdx > totalCount then set endIdx to totalCount
 
     try
         repeat with i from (offsetNum + 1) to endIdx
-            resultList's addObject:(my recordToSummary(matchingRecs's objectAtIndex:(i - 1)))
+            resultList's addObject:(my recordToSummary(item i of matchingRecs))
         end repeat
     on error errMsg
         return my errResp("Failed to build results: " & errMsg)

@@ -61,7 +61,12 @@ Foundation methods outside it.
 **AppleScript parser quirks**: `set x to name of every tag of lib` does not
 compile (error -2740); write `set x to (get name of every tag of lib)`. `st`
 and `after` are reserved words, so they cannot name a handler or a variable.
-Check a script with `osacompile -o /dev/null scripts/<name>.applescript`.
+`count` is a command: call it on an Objective-C object as `x's |count|()`. An
+EagleFiler constant (`PDF format`) outside a `tell` block needs `using terms
+from application "EagleFiler"`. An AppleScript record reference cannot go into
+an `NSMutableArray`; collect references in an AppleScript list. Check a script
+with `osacompile -o /dev/null scripts/<name>.applescript`; `npm test` compiles
+every script.
 
 **Titles and filenames** (tested through AppleScript): a blank title links the
 title to the filename, and a file rename then changes the title. Setting any

@@ -52,6 +52,7 @@ on run argv
 
     -- Map format string to AppleScript format constant
     set webFmt to missing value
+    using terms from application "EagleFiler"
     if formatStr is "bookmark" then
         set webFmt to bookmark format
     else if formatStr is "html" then
@@ -68,6 +69,7 @@ on run argv
     else
         return my errResp("Unknown format: " & formatStr)
     end if
+    end using terms from
 
     set theContainer to missing value
     if folderGUID is not "" then

@@ -55,7 +55,7 @@ on run argv
 
     -- Convert NSArray to AppleScript list
     set asTagList to {}
-    repeat with i from 1 to (tagsList's count()) as integer
+    repeat with i from 1 to (tagsList's |count|()) as integer
         set end of asTagList to ((tagsList's objectAtIndex:(i - 1)) as text)
     end repeat
 
