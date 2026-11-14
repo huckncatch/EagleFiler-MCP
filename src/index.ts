@@ -9,8 +9,9 @@ import {
 
 import { libraryTools, handleListLibraries, handleOpenLibrary } from './tools/libraries.js';
 import { recordTools, handleListRecords, handleGetRecord, handleSearch, handleSearchByTags } from './tools/records.js';
-import { metadataTools, handleSetTags, handleSetNote, handleFlagRecord, handleSetLabel, handleMarkRead } from './tools/metadata.js';
-import { importTools, handleImportUrl, handleImportText, handleImportFile, handleAddFolder, handleMoveRecord, handleTrashRecord } from './tools/import.js';
+import { metadataTools, handleSetTags, handleSetNote, handleFlagRecord, handleSetLabel, handleMarkRead,
+  handleRenameRecord, handleListTags, handleTagRecords, handleRenameTag } from './tools/metadata.js';
+import { importTools, handleImportUrl, handleImportText, handleImportFile, handleAddFolder, handleMoveRecord, handleMoveToLibrary, handleTrashRecord } from './tools/import.js';
 
 const allTools = [...libraryTools, ...recordTools, ...metadataTools, ...importTools];
 
@@ -26,11 +27,16 @@ const handlers: Record<string, (args: unknown) => Promise<unknown>> = {
   flag_record:      handleFlagRecord,
   set_label:        handleSetLabel,
   mark_read:        handleMarkRead,
+  rename_record:    handleRenameRecord,
+  list_tags:        handleListTags,
+  tag_records:      handleTagRecords,
+  rename_tag:       handleRenameTag,
   import_url:       handleImportUrl,
   import_text:      handleImportText,
   import_file:      handleImportFile,
   add_folder:       handleAddFolder,
   move_record:      handleMoveRecord,
+  move_to_library:  handleMoveToLibrary,
   trash_record:     handleTrashRecord,
 };
 

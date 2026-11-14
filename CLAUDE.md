@@ -58,6 +58,27 @@ with error -1700 within a `tell application "EagleFiler"` block. Collect the
 `file of lib` aliases inside the tell block, then call `POSIX path of` and all
 Foundation methods outside it.
 
+**AppleScript parser quirks**: `set x to name of every tag of lib` does not
+compile (error -2740); write `set x to (get name of every tag of lib)`. `st`
+and `after` are reserved words, so they cannot name a handler or a variable.
+Check a script with `osacompile -o /dev/null scripts/<name>.applescript`.
+
+**Titles and filenames** (tested through AppleScript): a blank title links the
+title to the filename, and a file rename then changes the title. Setting any
+non-blank title unlinks it, even a title equal to the filename. Setting a title
+never renames the file. No property shows whether a title is linked.
+
+**Tags**: tags are flat. A record count from `every library record of tag`
+leaves out trashed records. Adding a tag name in a different case makes a new
+tag, so `tag_records` reuses the existing spelling. Renaming a tag onto an
+existing name does nothing, without an error. `delete` fails on a tag; tags are
+deleted only in the EagleFiler UI.
+
+**Cross-library moves**: EagleFiler has no move between libraries.
+`move_to_library` imports a copy and trashes the original, so the record gets a
+new GUID. A live duplicate in the target blocks the import; a trashed one does
+not.
+
 **Adding a tool**:
 
 1. Add the schema and handler in the matching `src/tools/*.ts` file.

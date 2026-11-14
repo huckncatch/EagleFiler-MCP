@@ -77,6 +77,10 @@ All tools accept either a short name (`"main"`) or an absolute path to the `.efl
 | `flag_record` | Flag or unflag a record |
 | `set_label` | Set label colour (0=none 1=grey 2=green 3=purple 4=blue 5=yellow 6=red 7=orange) |
 | `mark_read` | Mark a record as read or unread |
+| `rename_record` | Set a record's title and/or filename; a blank title links the title to the filename |
+| `list_tags` | List a library's tags with live record counts, most used first; marks built-in tags |
+| `tag_records` | Add and/or remove tags on many records at once; matches existing tags without regard to case |
+| `rename_tag` | Rename a tag; refuses a name that already exists (merge with `tag_records`) |
 
 ### Import & Structure
 
@@ -87,6 +91,7 @@ All tools accept either a short name (`"main"`) or an absolute path to the `.efl
 | `import_file` | Import local files, with optional tags and note; moves the file by default (`delete_source: false` copies) |
 | `add_folder` | Create a new folder in a library |
 | `move_record` | Move a record to a different folder within the same library |
+| `move_to_library` | Move a record to another library: imports a copy with its metadata, checks the checksum, trashes the original. The copy gets a new GUID, so the result returns the old and new `x-eaglefiler://` links |
 | `trash_record` | Move a record to the library trash (recoverable from EagleFiler) |
 
 ### Import formats
@@ -103,8 +108,10 @@ src/
   tools/
     libraries.ts    # list_libraries, open_library
     records.ts      # list_records, get_record, search, search_by_tags
-    metadata.ts     # set_tags, set_note, flag_record, set_label, mark_read
-    import.ts       # import_url, import_text, import_file, add_folder, move_record, trash_record
+    metadata.ts     # set_tags, set_note, flag_record, set_label, mark_read,
+                    # rename_record, list_tags, tag_records, rename_tag
+    import.ts       # import_url, import_text, import_file, add_folder, move_record,
+                    # move_to_library, trash_record
 scripts/
   *.applescript     # one script per tool, called by dispatcher via osascript
 ```

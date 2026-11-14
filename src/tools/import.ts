@@ -42,6 +42,13 @@ const MoveInput = z.object({
   target_folder_guid: z.string(),
 });
 
+const MoveToLibraryInput = z.object({
+  library: z.string(),
+  guid: z.string(),
+  target_library: z.string(),
+  target_folder_guid: z.string().optional().default(''),
+});
+
 const TrashInput = z.object({
   library: z.string(),
   guid: z.string(),
@@ -82,6 +89,14 @@ export async function handleAddFolder(args: unknown) {
 export async function handleMoveRecord(args: unknown) {
   const { library, guid, target_folder_guid } = MoveInput.parse(args);
   return run('move_record', [resolveLibrary(library), guid, target_folder_guid]);
+}
+
+export async function handleMoveToLibrary(args: unknown) {
+  const { library, guid, target_library, target_folder_guid } = MoveToLibraryInput.parse(args);
+  const src = resolveLibrary(library);
+  const dst = resolveLibrary(target_library);
+  if (path.resolve(src) === path.resolve(dst)) throw new Error('Source and target are the same library; use move_record');
+  return run('move_to_library', [src, guid, dst, target_folder_guid]);
 }
 
 export async function handleTrashRecord(args: unknown) {
@@ -170,6 +185,25 @@ export const importTools = [
         target_folder_guid: { type: 'string', description: 'GUID of the destination folder' },
       },
       required: ['library', 'guid', 'target_folder_guid'],
+    },
+  },
+  {
+    name: 'move_to_library',
+    description:
+      'Move a record to another library. EagleFiler has no native move, so this imports a copy with its tags, ' +
+      'note, title, source URL, from, label, flag, read state and added date, checks the checksum, then moves ' +
+      'the original to the source library trash. The copy gets a new GUID: x-eaglefiler links to the old record ' +
+      'stop working, so the result returns old_url and new_url. Refused, with the original kept, if the target ' +
+      'already holds the same file (live, not trashed). Folders are refused. Both libraries must be open.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        library: { type: 'string', description: 'Source library: short name or full path' },
+        guid: { type: 'string', description: 'Record GUID to move' },
+        target_library: { type: 'string', description: 'Target library: short name or full path' },
+        target_folder_guid: { type: 'string', description: 'Destination folder GUID in the target (omit for root)' },
+      },
+      required: ['library', 'guid', 'target_library'],
     },
   },
   {

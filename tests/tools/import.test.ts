@@ -8,7 +8,7 @@ vi.mock('../../src/dispatcher.js', () => ({ run: vi.fn() }));
 import * as dispatcher from '../../src/dispatcher.js';
 import {
   handleImportUrl, handleImportText, handleImportFile, handleAddFolder,
-  handleMoveRecord, handleTrashRecord, importTools,
+  handleMoveRecord, handleMoveToLibrary, handleTrashRecord, importTools,
 } from '../../src/tools/import.js';
 
 const mockRun = vi.mocked(dispatcher.run);
@@ -117,5 +117,22 @@ describe('handleMoveRecord', () => {
 });
 
 describe('importTools', () => {
-  it('exports 6 tools', () => expect(importTools).toHaveLength(6));
+  it('exports 7 tools', () => expect(importTools).toHaveLength(7));
+});
+
+describe('handleMoveToLibrary', () => {
+  it('passes both library paths and an empty folder guid', async () => {
+    mockRun.mockResolvedValue({});
+    await handleMoveToLibrary({ library: 'main', guid: 'g', target_library: 'rental' });
+    const args = mockRun.mock.calls[0][1];
+    expect(args[0]).toContain('main.eflibrary');
+    expect(args[1]).toBe('g');
+    expect(args[2]).toContain('rental.eflibrary');
+    expect(args[3]).toBe('');
+  });
+
+  it('refuses the same library as source and target', async () => {
+    await expect(handleMoveToLibrary({ library: 'main', guid: 'g', target_library: 'main' })).rejects.toThrow();
+    expect(mockRun).not.toHaveBeenCalled();
+  });
 });
