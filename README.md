@@ -15,7 +15,13 @@ npm install
 npm run build
 ```
 
-Register in your MCP client (e.g. `~/.config/claude/settings.json`):
+Register in Claude Code:
+
+```bash
+claude mcp add --scope user eaglefiler -- node /path/to/eaglefiler-mcp/dist/index.js
+```
+
+Or in Claude Desktop (`~/Library/Application Support/Claude/claude_desktop_config.json`):
 
 ```json
 {
