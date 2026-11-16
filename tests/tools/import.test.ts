@@ -123,11 +123,11 @@ describe('importTools', () => {
 describe('handleMoveToLibrary', () => {
   it('passes both library paths and an empty folder guid', async () => {
     mockRun.mockResolvedValue({});
-    await handleMoveToLibrary({ library: 'main', guid: 'g', target_library: 'rental' });
+    await handleMoveToLibrary({ library: 'main', guid: 'g', target_library: 'property' });
     const args = mockRun.mock.calls[0][1];
     expect(args[0]).toContain('main.eflibrary');
     expect(args[1]).toBe('g');
-    expect(args[2]).toContain('rental.eflibrary');
+    expect(args[2]).toContain('property.eflibrary');
     expect(args[3]).toBe('');
   });
 

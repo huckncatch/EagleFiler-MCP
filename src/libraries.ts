@@ -9,7 +9,7 @@ export const KNOWN_LIBRARIES: Record<string, string> = {
   development: path.join(BASE, 'development', 'development.eflibrary'),
   knowledge:   path.join(BASE, 'Knowledge', 'Knowledge.eflibrary'),
   work:        path.join(BASE, 'work', 'work.eflibrary'),
-  rental:      path.join(BASE, 'rental', 'rental.eflibrary'),
+  property:    path.join(BASE, 'property', 'property.eflibrary'),
   evernote:    path.join(BASE, 'Evernote', 'Evernote.eflibrary'),
   joplin:      path.join(BASE, 'Joplin', 'Joplin.eflibrary'),
   erotica:     path.join(BASE, 'erotica', 'erotica.eflibrary'),
