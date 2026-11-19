@@ -77,7 +77,9 @@ never renames the file. No property shows whether a title is linked.
 leaves out trashed records. Adding a tag name in a different case makes a new
 tag, so `tag_records` reuses the existing spelling. Renaming a tag onto an
 existing name does nothing, without an error. `delete` fails on a tag; tags are
-deleted only in the EagleFiler UI.
+deleted only in the EagleFiler UI. `unread`, `flagged` and `note` are EagleFiler's own
+tags: the app keeps `note` on every record with a note, so removing it does
+nothing.
 
 **Cross-library moves**: EagleFiler has no move between libraries.
 `move_to_library` imports a copy and trashes the original, so the record gets a
