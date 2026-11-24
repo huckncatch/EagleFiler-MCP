@@ -13,6 +13,13 @@ on okResp(dataObj)
     return my toJSON(r)
 end okResp
 
+on errResp(msg)
+    set r to current application's NSMutableDictionary's new()
+    r's setValue:false forKey:"ok"
+    r's setObject:msg forKey:"error"
+    return my toJSON(r)
+end errResp
+
 on run argv
     -- argv[1]: JSON string of known libraries map {"name": "path", ...}
     set knownJSON to item 1 of argv
@@ -20,10 +27,14 @@ on run argv
     -- Collect file aliases inside tell block (POSIX path coercion fails inside tell)
     set openLibFiles to {}
     tell application "EagleFiler"
-        set libs to every library document
-        repeat with lib in libs
+        set libCount to count of library documents
+        repeat with i from 1 to libCount
             try
-                set end of openLibFiles to (file of lib)
+                set end of openLibFiles to (file of library document i)
+            on error errMsg
+                -- Report the failure: a missing entry would read as "not open"
+                set libName to (get name of library document i)
+                return my errResp("Can't read the file of open library " & libName & ": " & errMsg)
             end try
         end repeat
     end tell

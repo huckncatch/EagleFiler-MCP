@@ -34,7 +34,9 @@ EagleFiler app through AppleScript. macOS only.
   `scripts/<scriptName>.applescript` with `osascript`, passing arguments as
   `argv`. It parses the script's JSON reply and turns failures into `McpError`.
 - **`src/launcher.ts`**: `ensureEagleFilerRunning()` launches EagleFiler before
-  each call and waits up to 5 seconds.
+  each call and waits up to 5 seconds for the process. After a launch it waits
+  up to 10 more seconds for EagleFiler to reopen its libraries: the process
+  starts before the libraries open, and a call in that gap sees none open.
 - **`src/libraries.ts`**: `KNOWN_LIBRARIES` maps short names to `.eflibrary`
   paths under `~/Dropbox/Apps/EagleFiler`. `resolveLibrary()` also accepts an
   absolute or `~/` path.
