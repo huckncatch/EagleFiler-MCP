@@ -48,6 +48,31 @@ on recordToSummary(rec)
     return d
 end recordToSummary
 
+on findWindowName(libPath)
+    -- A stored window reference (browser window 1 of lib) fails with -1700,
+    -- so return the window's name and address it as browser window <name>.
+    set winFiles to {}
+    set winNames to {}
+    tell application "EagleFiler"
+        repeat with i from 1 to count of browser windows
+            set end of winFiles to (file of document of browser window i)
+            set end of winNames to (name of browser window i)
+        end repeat
+    end tell
+    repeat with i from 1 to count of winFiles
+        set p to POSIX path of (item i of winFiles)
+        set normalPath to ((current application's NSString's stringWithString:p)'s stringByStandardizingPath()) as text
+        if normalPath is libPath then return item i of winNames
+    end repeat
+    return missing value
+end findWindowName
+
+on urlEncode(str)
+    set allowed to current application's NSCharacterSet's URLQueryAllowedCharacterSet()'s mutableCopy()
+    allowed's removeCharactersInString:"&=+?#"
+    return ((current application's NSString's stringWithString:str)'s stringByAddingPercentEncodingWithAllowedCharacters:allowed) as text
+end urlEncode
+
 on run argv
     -- argv[1]: library path, argv[2]: query string,
     -- argv[3]: limit, argv[4]: offset
@@ -56,73 +81,36 @@ on run argv
     set limitNum to (item 3 of argv) as integer
     set offsetNum to (item 4 of argv) as integer
 
-    -- Collect file aliases inside tell (POSIX path coercion fails inside tell application block)
-    set libFiles to {}
+    -- The search URL opens the library if needed, selects its Records source
+    -- and searches, so the scope is the whole library whatever the window shows.
+    set searchURL to "x-eaglefiler://search?q=" & my urlEncode(queryStr) & "&library=" & my urlEncode(libPath)
     tell application "EagleFiler"
-        set libCount to count of library documents
-        repeat with i from 1 to libCount
-            set end of libFiles to (file of library document i)
-        end repeat
+        get url searchURL
     end tell
-    -- Find matching library by comparing POSIX paths outside tell block
-    set theLib to missing value
-    repeat with i from 1 to count of libFiles
-        set libPathRaw to POSIX path of (item i of libFiles)
-        set normalPath to ((current application's NSString's stringWithString:libPathRaw)'s stringByStandardizingPath()) as text
-        if normalPath is libPath then
-            tell application "EagleFiler"
-                set theLib to library document i
-            end tell
-            exit repeat
-        end if
+
+    set winName to missing value
+    repeat 10 times
+        set winName to my findWindowName(libPath)
+        if winName is not missing value then exit repeat
+        delay 0.3
     end repeat
-    if theLib is missing value then return my errResp("library not open: " & libPath)
+    if winName is missing value then return my errResp("Could not find a browser window for library: " & libPath)
 
-    -- Ensure a browser window is open for the library
-    set theWindow to missing value
-    tell application "EagleFiler"
-        if (count of browser windows of theLib) > 0 then
-            set theWindow to browser window 1 of theLib
-        end if
-    end tell
-
-    if theWindow is missing value then
-        -- Bring library to front to create a window
-        tell application "EagleFiler"
-            activate
-            open POSIX file libPath
-        end tell
-        delay 0.5
-        tell application "EagleFiler"
-            if (count of browser windows of theLib) > 0 then
-                set theWindow to browser window 1 of theLib
-            end if
-        end tell
-    end if
-
-    if theWindow is missing value then return my errResp("Could not open browser window for library")
-
-    -- Run search
-    tell application "EagleFiler"
-        tell theWindow
-            set search query to queryStr
-        end tell
-    end tell
-    delay 0.5 -- allow search index to update display
-
+    -- Read until two reads agree, so a search still in progress is not returned.
     set allMatches to {}
     try
         tell application "EagleFiler"
-            tell theWindow
-                set allMatches to displayed records
-            end tell
+            set allMatches to displayed records of browser window winName
+            repeat 10 times
+                delay 0.2
+                set nextMatches to displayed records of browser window winName
+                if (count of nextMatches) = (count of allMatches) then exit repeat
+                set allMatches to nextMatches
+            end repeat
         end tell
     on error errMsg
-        -- Clear search field even on error
         tell application "EagleFiler"
-            tell theWindow
-                set search query to ""
-            end tell
+            set search query of browser window winName to ""
         end tell
         return my errResp("Failed to read search results: " & errMsg)
     end try
@@ -141,11 +129,8 @@ on run argv
         set buildErr to errMsg
     end try
 
-    -- Clear search field
     tell application "EagleFiler"
-        tell theWindow
-            set search query to ""
-        end tell
+        set search query of browser window winName to ""
     end tell
 
     if buildErr is not "" then return my errResp("Failed to build results: " & buildErr)

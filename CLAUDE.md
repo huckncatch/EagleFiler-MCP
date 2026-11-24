@@ -58,6 +58,15 @@ with error -1700 within a `tell application "EagleFiler"` block. Collect the
 `file of lib` aliases inside the tell block, then call `POSIX path of` and all
 Foundation methods outside it.
 
+**Window references**: a stored window reference (`browser window 1 of lib`,
+or a loop variable over `browser windows`) fails with error -1700 when used.
+Read the window's name and address it as `browser window <name>` each time.
+
+**Search**: the search field searches only the sources selected in the
+window (EagleFiler's Always Search All Records is off). `search` opens
+`x-eaglefiler://search?q=...&library=...` with `get url`, which selects the
+library's Records source first, then reads `displayed records`.
+
 **AppleScript parser quirks**: `set x to name of every tag of lib` does not
 compile (error -2740); write `set x to (get name of every tag of lib)`. `st`
 and `after` are reserved words, so they cannot name a handler or a variable.

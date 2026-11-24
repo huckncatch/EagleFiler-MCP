@@ -80,7 +80,7 @@ export const recordTools = [
   {
     name: 'search',
     description:
-      'Full-text search within a library. Supports EagleFiler query syntax including tag:tagname. Returns records[] and total.',
+      'Full-text search of the whole library. Supports EagleFiler query syntax including tag:tagname. Brings EagleFiler to the front and selects the Records source in the library window. Returns records[] and total.',
     inputSchema: {
       type: 'object',
       properties: {
