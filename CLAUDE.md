@@ -62,10 +62,12 @@ Foundation methods outside it.
 or a loop variable over `browser windows`) fails with error -1700 when used.
 Read the window's name and address it as `browser window <name>` each time.
 
-**Search**: the search field searches only the sources selected in the
-window (EagleFiler's Always Search All Records is off). `search` opens
-`x-eaglefiler://search?q=...&library=...` with `get url`, which selects the
-library's Records source first, then reads `displayed records`.
+**Search**: the search field searches the whole library only when
+EagleFiler's Always Search All Records is on (`SearchAllRecords` in
+`com.c-command.EagleFiler`); otherwise it searches the sources selected in the
+window. `search` sets the search field when the setting is on. When it is off,
+`search` opens `x-eaglefiler://search?q=...&library=...` with `get url`, which
+brings EagleFiler to the front and selects the Records source first.
 
 **AppleScript parser quirks**: `set x to name of every tag of lib` does not
 compile (error -2740); write `set x to (get name of every tag of lib)`. `st`

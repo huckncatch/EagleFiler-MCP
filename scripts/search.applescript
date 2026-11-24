@@ -81,20 +81,40 @@ on run argv
     set limitNum to (item 3 of argv) as integer
     set offsetNum to (item 4 of argv) as integer
 
-    -- The search URL opens the library if needed, selects its Records source
-    -- and searches, so the scope is the whole library whatever the window shows.
-    set searchURL to "x-eaglefiler://search?q=" & my urlEncode(queryStr) & "&library=" & my urlEncode(libPath)
-    tell application "EagleFiler"
-        get url searchURL
-    end tell
+    -- With Always Search All Records on, the search field covers the whole
+    -- library, so set it in the background. Otherwise open the search URL,
+    -- which brings EagleFiler to the front and selects the Records source.
+    set searchAll to "0"
+    try
+        set searchAll to do shell script "defaults read com.c-command.EagleFiler SearchAllRecords"
+    end try
 
-    set winName to missing value
+    set winName to my findWindowName(libPath)
+    if searchAll is "1" then
+        if winName is missing value then
+            tell application "EagleFiler"
+                open POSIX file libPath
+            end tell
+        end if
+    else
+        set searchURL to "x-eaglefiler://search?q=" & my urlEncode(queryStr) & "&library=" & my urlEncode(libPath)
+        tell application "EagleFiler"
+            get url searchURL
+        end tell
+    end if
+
     repeat 10 times
-        set winName to my findWindowName(libPath)
         if winName is not missing value then exit repeat
         delay 0.3
+        set winName to my findWindowName(libPath)
     end repeat
     if winName is missing value then return my errResp("Could not find a browser window for library: " & libPath)
+
+    if searchAll is "1" then
+        tell application "EagleFiler"
+            set search query of browser window winName to queryStr
+        end tell
+    end if
 
     -- Read until two reads agree, so a search still in progress is not returned.
     set allMatches to {}

@@ -65,7 +65,7 @@ All tools accept either a short name (`"main"`) or an absolute path to the `.efl
 | ---- | ----------- |
 | `list_records` | List records in a library root or folder, with pagination |
 | `get_record` | Get full details of a record by GUID (metadata, tags, note, file path, URL) |
-| `search` | Full-text search of the whole library; supports EagleFiler query syntax including `tag:tagname`. Brings EagleFiler to the front and selects the library's Records source |
+| `search` | Full-text search of the whole library; supports EagleFiler query syntax including `tag:tagname`. Runs in the background when EagleFiler's Always Search All Records is on; otherwise brings EagleFiler to the front and selects the library's Records source |
 | `search_by_tags` | Find records matching ALL specified tags (AND semantics) |
 
 ### Metadata
